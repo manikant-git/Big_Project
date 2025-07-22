@@ -1,77 +1,26 @@
 var express = require('express'),
-    async = require('async'),
-    { Pool } = require('pg'),
-    cookieParser = require('cookie-parser'),
     app = express(),
-    server = require('http').Server(app),
-    io = require('socket.io')(server);
+    Redis = require('ioredis'),
+    redis = new Redis({ host: 'redis', port: 6379, db: 0 });
 
-var port = process.env.PORT || 4000;
+app.set('view engine', 'pug');
+app.set('views', './views');
 
-io.on('connection', function (socket) {
+const PARTIES = ['YSRCP', 'TDP', 'BJP', 'BRS', 'CONGRESS'];
 
-  socket.emit('message', { text : 'Welcome!' });
-
-  socket.on('subscribe', function (data) {
-    socket.join(data.channel);
-  });
-});
-
-var pool = new Pool({
-  connectionString: 'postgres://postgres:postgres@db/postgres'
-});
-
-async.retry(
-  {times: 1000, interval: 1000},
-  function(callback) {
-    pool.connect(function(err, client, done) {
-      if (err) {
-        console.error("Waiting for db");
-      }
-      callback(err, client);
-    });
-  },
-  function(err, client) {
-    if (err) {
-      return console.error("Giving up");
+app.get('/', async function(req, res) {
+  try {
+    let votes = {};
+    for (let party of PARTIES) {
+      votes[party] = parseInt(await redis.get(party)) || 0;
     }
-    console.log("Connected to db");
-    getVotes(client);
+    res.render('index', { votes: votes });
+  } catch (e) {
+    res.status(500).send('Error fetching votes!');
   }
-);
-
-function getVotes(client) {
-  client.query('SELECT vote, COUNT(id) AS count FROM votes GROUP BY vote', [], function(err, result) {
-    if (err) {
-      console.error("Error performing query: " + err);
-    } else {
-      var votes = collectVotesFromResult(result);
-      io.sockets.emit("scores", JSON.stringify(votes));
-    }
-
-    setTimeout(function() {getVotes(client) }, 1000);
-  });
-}
-
-function collectVotesFromResult(result) {
-  var votes = {a: 0, b: 0};
-
-  result.rows.forEach(function (row) {
-    votes[row.vote] = parseInt(row.count);
-  });
-
-  return votes;
-}
-
-app.use(cookieParser());
-app.use(express.urlencoded());
-app.use(express.static(__dirname + '/views'));
-
-app.get('/', function (req, res) {
-  res.sendFile(path.resolve(__dirname + '/views/index.html'));
 });
 
-server.listen(port, function () {
-  var port = server.address().port;
-  console.log('App running on port ' + port);
+app.listen(80, function () {
+  console.log('Result app listening on port 80.');
 });
+

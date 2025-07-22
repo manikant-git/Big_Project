@@ -1,43 +1,48 @@
 <!DOCTYPE html>
-<html ng-app="catsvsdogs">
+<html>
   <head>
-    <meta charset="utf-8">
-    <title>Cats vs Dogs -- Result</title>
-    <base href="/index.html">
-    <meta name = "viewport" content = "width=device-width, initial-scale = 1.0">
-    <meta name="keywords" content="docker-compose, docker, stack">
-    <meta name="author" content="Docker">
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <meta charset="utf-8" />
+    <title>Voting Results</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    />
   </head>
-  <body ng-controller="statsCtrl" >
-     <div id="background-stats">
-       <div id="background-stats-1">
-       </div><!--
-      --><div id="background-stats-2">
-      </div>
+  <body>
+    <div class="container" style="margin-top: 50px; max-width: 500px;">
+      <h1 class="text-center mb-4">Voting Results</h1>
+      <table class="table table-bordered text-center">
+        <thead>
+          <tr>
+            <th>Party</th>
+            <th>Votes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>YSRCP</td>
+            <td id="YSRCP">{{votes['YSRCP']}}</td>
+          </tr>
+          <tr>
+            <td>TDP</td>
+            <td id="TDP">{{votes['TDP']}}</td>
+          </tr>
+          <tr>
+            <td>BJP</td>
+            <td id="BJP">{{votes['BJP']}}</td>
+          </tr>
+          <tr>
+            <td>BRS</td>
+            <td id="BRS">{{votes['BRS']}}</td>
+          </tr>
+          <tr>
+            <td>CONGRESS</td>
+            <td id="CONGRESS">{{votes['CONGRESS']}}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <div id="content-container">
-      <div id="content-container-center">
-        <div id="choice">
-          <div class="choice cats">
-            <div class="label">Cats</div>
-            <div class="stat">{{aPercent | number:1}}%</div>
-          </div>
-          <div class="divider"></div>
-          <div class="choice dogs">
-            <div class="label">Dogs</div>
-            <div class="stat">{{bPercent | number:1}}%</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div id="result">
-      <span ng-if="total == 0">No votes yet</span>
-      <span ng-if="total == 1">{{total}} vote</span>
-      <span ng-if="total >= 2">{{total}} votes</span>
-    </div>
-    <script src="socket.io.js"></script>
-    <script src="angular.min.js"></script>
-    <script src="app.js"></script>
   </body>
 </html>
+
+
